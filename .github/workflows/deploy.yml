@@ -35,8 +35,8 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_KEY }}
-        source: "./publish"
-        target: "~/proyecto-api"
+        source: "./publish/*"
+        target: "~/proyecto-api/publish"
 
     - name: Restart API on EC2
       uses: appleboy/ssh-action@v0.1.10
@@ -46,5 +46,5 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         script: |
           sudo pkill -f ProyectoMetodologia || true
-          cd ~/proyecto-api
+          cd ~/proyecto-api/publish
           nohup dotnet ProyectoMetodologia.dll > log.txt 2>&1 &
