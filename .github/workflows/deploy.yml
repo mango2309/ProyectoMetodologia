@@ -24,7 +24,7 @@ jobs:
       run: dotnet build --configuration Release
 
     - name: Run Tests
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
 
     - name: Publish app
       run: dotnet publish -c Release -o ./publish
