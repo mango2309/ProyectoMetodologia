@@ -1,0 +1,50 @@
+name: CI/CD .NET API to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release
+
+    - name: Run Tests
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Publish app
+      run: dotnet publish -c Release -o ./publish
+
+    - name: Deploy to EC2 via SSH
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_KEY }}
+        source: "./publish"
+        target: "~/proyecto-api"
+
+    - name: Restart API on EC2
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_KEY }}
+        script: |
+          sudo pkill -f ProyectoMetodologia || true
+          cd ~/proyecto-api
+          nohup dotnet ProyectoMetodologia.dll > log.txt 2>&1 &
