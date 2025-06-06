@@ -29,14 +29,14 @@ jobs:
     - name: Publish app
       run: dotnet publish -c Release -o ./publish
 
-    - name: Deploy to EC2 via SSH
+    - name: Deploy to EC2 via SCP
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_KEY }}
-        source: "./publish/*"
-        target: "~/proyecto-api/publish"
+        source: "./publish"
+        target: "~/proyecto-api"
 
     - name: Restart API on EC2
       uses: appleboy/ssh-action@v0.1.10
@@ -47,4 +47,4 @@ jobs:
         script: |
           sudo pkill -f ProyectoMetodologia || true
           cd ~/proyecto-api/publish
-          nohup dotnet ProyectoMetodologia.dll > log.txt 2>&1 &
+          nohup dotnet ProyectoMetodologia.dll --urls "http://0.0.0.0:5000" > log.txt 2>&1 < /dev/null & disown
