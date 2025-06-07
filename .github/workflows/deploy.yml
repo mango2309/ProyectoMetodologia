@@ -24,12 +24,12 @@ jobs:
       run: dotnet build ProyectoMetodologia/ProyectoMetodologia.csproj --configuration Release
 
     - name: Run Tests
-      run: dotnet test ProyectoMetodologia/ProyectoMetodologia.csproj --verbosity normal
+      run: dotnet test --verbosity normal
 
     - name: Publish app
       run: dotnet publish ProyectoMetodologia/ProyectoMetodologia.csproj -c Release -o ./publish
 
-    - name: Deploy to EC2 via SCP
+    - name: Deploy to EC2 via SSH
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.EC2_HOST }}
@@ -37,14 +37,3 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         source: "./publish"
         target: "~/proyecto-api"
-
-    - name: Restart API on EC2
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_KEY }}
-        script: |
-          sudo pkill -f ProyectoMetodologia || true
-          cd ~/proyecto-api/publish
-          nohup dotnet ProyectoMetodologia.dll --urls "http://0.0.0.0:5000" > log.txt 2>&1 < /dev/null & disown
