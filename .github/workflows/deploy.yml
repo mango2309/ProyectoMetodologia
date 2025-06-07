@@ -18,16 +18,16 @@ jobs:
         dotnet-version: '8.0.116'
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ProyectoMetodologia/ProyectoMetodologia.csproj
 
     - name: Build
-      run: dotnet build --configuration Release
+      run: dotnet build ProyectoMetodologia/ProyectoMetodologia.csproj --configuration Release
 
     - name: Run Tests
-      run: dotnet test --verbosity normal
+      run: dotnet test ProyectoMetodologia/ProyectoMetodologia.csproj --verbosity normal
 
     - name: Publish app
-      run: dotnet publish -c Release -o ./publish
+      run: dotnet publish ProyectoMetodologia/ProyectoMetodologia.csproj -c Release -o ./publish
 
     - name: Deploy to EC2 via SCP
       uses: appleboy/scp-action@v0.1.4
