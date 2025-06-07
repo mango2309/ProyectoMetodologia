@@ -5,7 +5,7 @@ on:
     branches: [master]
 
 jobs:
-  build-test-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +20,37 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore ProyectoMetodologia/ProyectoMetodologia.csproj
 
-    - name: Build
+    - name: Build project
       run: dotnet build ProyectoMetodologia/ProyectoMetodologia.csproj --configuration Release
 
-    - name: Run Tests
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.116'
+
+    - name: Run tests
       run: dotnet test --verbosity normal
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.116'
 
     - name: Publish app
       run: dotnet publish ProyectoMetodologia/ProyectoMetodologia.csproj -c Release -o ./publish
